@@ -40,19 +40,33 @@ const ContactForm = () => {
     },
   });
 
-  function onSubmit(values: FormValues) {
+  async function onSubmit(values: FormValues) {
     setIsSubmitting(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      console.log(values);
+  
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      });
+  
+      if (!res.ok) throw new Error("Failed to send message");
+  
       toast({
         title: "Message sent",
         description: "We've received your message and will respond shortly.",
       });
+  
       form.reset();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "There was a problem sending your message.",
+        variant: "destructive",
+      });
+    } finally {
       setIsSubmitting(false);
-    }, 1000);
+    }
   }
 
   return (
