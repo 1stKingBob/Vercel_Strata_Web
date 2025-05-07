@@ -180,6 +180,3 @@ export default function ContactForm() {
     </Form>
   );
 }
-};
-
-export default ContactForm;
