@@ -2,11 +2,19 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Button } from "@/components/ui/button";
-import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
+
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Form, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 
 const formSchema = z.object({
@@ -15,16 +23,12 @@ const formSchema = z.object({
   unitNumber: z.string().min(1, { message: "Please enter your unit number." }),
   category: z.string().min(1, { message: "Please select a category." }),
   message: z.string().min(10, { message: "Message must be at least 10 characters." }),
-  copyToEmail: z.boolean().default(false),
+  copyToEmail: z.boolean().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
-const ContactForm = () => {
-  const { toast } = useToast();
-  const [categories, setCategories] = useState<{ value: string; label: string }[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
+export default function ContactForm() {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -37,97 +41,145 @@ const ContactForm = () => {
     },
   });
 
+  const { toast } = useToast();
+  const [categories, setCategories] = useState<{ value: string; label: string }[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  // Fetch categories from serverless function
   useEffect(() => {
     async function fetchCategories() {
       try {
-        const response = await fetch('/api/contact');
-        if (!response.ok) {
-          throw new Error('Failed to fetch categories');
-        }
-        const data = await response.json();
+        const res = await fetch("/api/contact");
+        if (!res.ok) throw new Error("Failed to fetch categories");
+        const data = await res.json();
         setCategories(data.categories || []);
       } catch (error) {
-        console.error('Error fetching categories:', error);
+        console.error("Error fetching categories:", error);
         toast({
-          title: 'Error fetching categories',
-          description: 'There was an issue fetching the categories. Please try again later.',
-          variant: 'destructive',
+          title: "Error",
+          description: "Could not load form categories.",
+          variant: "destructive",
         });
       }
     }
     fetchCategories();
   }, []);
 
-  const onSubmit = async (values: FormValues) => {
-    setIsSubmitting(true);
+  async function onSubmit(values: FormValues) {
+    setLoading(true);
     try {
-      const response = await fetch('/api/contact', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),
       });
 
-      if (response.ok) {
-        toast({
-          title: "Message sent",
-          description: "We've received your message and will respond shortly.",
-        });
-        form.reset();
-      } else {
-        throw new Error('Failed to send message');
-      }
-    } catch (error) {
-      console.error(error);
+      if (!res.ok) throw new Error("Form submission failed");
+
       toast({
-        title: 'Error',
-        description: 'There was an issue sending your message. Please try again later.',
-        variant: 'destructive',
+        title: "Message sent!",
+        description: "We’ve received your message and will respond shortly.",
       });
+      form.reset();
+    } catch (error) {
+      console.error("Submission error:", error);
+      toast({
+        title: "Submission error",
+        description: "There was a problem sending your message.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
-    setIsSubmitting(false);
-  };
+  }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        {/* Other form fields for name, email, etc. */}
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 max-w-xl mx-auto p-4">
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Name</FormLabel>
+              <FormControl>
+                <Input placeholder="John Doe" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Email</FormLabel>
+              <FormControl>
+                <Input placeholder="you@example.com" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="unitNumber"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Unit Number</FormLabel>
+              <FormControl>
+                <Input placeholder="101" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <FormField
           control={form.control}
           name="category"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Category</FormLabel>
-              <Select {...field}>
-                <FormControl>
+              <FormControl>
+                <Select value={field.value} onValueChange={field.onChange}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {categories.length > 0 ? (
-                    categories.map((category) => (
-                      <SelectItem key={category.value} value={category.value}>
-                        {category.label}
+                  <SelectContent>
+                    {categories.map((cat) => (
+                      <SelectItem key={cat.value} value={cat.value}>
+                        {cat.label}
                       </SelectItem>
-                    ))
-                  ) : (
-                    <SelectItem value="">No categories available</SelectItem>
-                  )}
-                </SelectContent>
-              </Select>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        {/* Submit Button */}
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Sending..." : "Send Message"}
+        <FormField
+          control={form.control}
+          name="message"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Message</FormLabel>
+              <FormControl>
+                <Textarea placeholder="Type your message here..." rows={5} {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        {/* Submit button */}
+        <Button type="submit" disabled={loading}>
+          {loading ? "Sending..." : "Send Message"}
         </Button>
       </form>
     </Form>
   );
+}
 };
 
 export default ContactForm;
