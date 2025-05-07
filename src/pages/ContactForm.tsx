@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -27,6 +26,7 @@ type FormValues = z.infer<typeof formSchema>;
 const ContactForm = () => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [categories, setCategories] = useState<{ value: string; label: string }[]>([]);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -40,28 +40,51 @@ const ContactForm = () => {
     },
   });
 
+  // Fetch categories on component mount
+  useEffect(() => {
+    async function fetchCategories() {
+      try {
+        const response = await fetch('/api/contact');
+        const data = await response.json();
+        setCategories(data.categories || []);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    }
+    fetchCategories();
+  }, []);
+
+  // Handle form submission
   async function onSubmit(values: FormValues) {
     setIsSubmitting(true);
-  
+
     try {
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const response = await fetch('/api/contact', {
+        method: 'POST',
         body: JSON.stringify(values),
+        headers: {
+          'Content-Type': 'application/json',
+        },
       });
-  
-      if (!res.ok) throw new Error("Failed to send message");
-  
-      toast({
-        title: "Message sent",
-        description: "We've received your message and will respond shortly.",
-      });
-  
-      form.reset();
+
+      if (response.ok) {
+        toast({
+          title: "Message sent",
+          description: "We've received your message and will respond shortly.",
+        });
+        form.reset();
+      } else {
+        toast({
+          title: "Error",
+          description: "Something went wrong. Please try again later.",
+          variant: "destructive",
+        });
+      }
     } catch (error) {
+      console.error("Error submitting form:", error);
       toast({
         title: "Error",
-        description: "There was a problem sending your message.",
+        description: "Something went wrong. Please try again later.",
         variant: "destructive",
       });
     } finally {
@@ -138,7 +161,7 @@ const ContactForm = () => {
                           <FormLabel>Category</FormLabel>
                           <Select 
                             onValueChange={field.onChange} 
-                            defaultValue={field.value}
+                            value={field.value}
                           >
                             <FormControl>
                               <SelectTrigger>
@@ -146,12 +169,11 @@ const ContactForm = () => {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="general">General Inquiry</SelectItem>
-                              <SelectItem value="maintenance">Maintenance Request</SelectItem>
-                              <SelectItem value="noise">Noise Complaint</SelectItem>
-                              <SelectItem value="bylaws">By-law Query</SelectItem>
-                              <SelectItem value="financial">Financial Question</SelectItem>
-                              <SelectItem value="other">Other</SelectItem>
+                              {categories.map((category) => (
+                                <SelectItem key={category.value} value={category.value}>
+                                  {category.label}
+                                </SelectItem>
+                              ))}
                             </SelectContent>
                           </Select>
                           <FormMessage />
