@@ -180,7 +180,7 @@ const Maintenance = () => {
                   <Textarea 
                     id="issue-subject" 
                     placeholder="Subject of the issue..." 
-                    className="h-10"
+                    className="h-10 resize-none px-3 py-2"
                     value={issueSubject}
                     onChange={(e) => setIssueSubject(e.target.value)}
                   />
