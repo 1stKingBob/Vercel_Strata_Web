@@ -180,6 +180,7 @@ const Maintenance = () => {
                   <Textarea 
                     id="issue-subject" 
                     placeholder="Subject of the issue..." 
+                    rows={1}
                     value={issueSubject}
                     onChange={(e) => setIssueSubject(e.target.value)}
                   />
