@@ -271,6 +271,3 @@ const ContactForm = () => {
 };
 
 export default ContactForm;
-    </Form>
-  );
-}
