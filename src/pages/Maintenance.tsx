@@ -11,6 +11,7 @@ import { useToast } from "@/components/ui/use-toast";
 
 const Maintenance = () => {
   const { toast } = useToast();
+  const [issueSubject, setIssueSubject] = useState("");
   const [issueType, setIssueType] = useState("");
   const [issueLocation, setIssueLocation] = useState("");
   const [issueDescription, setIssueDescription] = useState("");
@@ -34,6 +35,7 @@ const Maintenance = () => {
     });
     
     // Reset form
+    setIssueSubject("");
     setIssueType("");
     setIssueLocation("");
     setIssueDescription("");
@@ -173,6 +175,16 @@ const Maintenance = () => {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="issue-subject">Subject</Label>
+                  <Textarea 
+                    id="issue-subject" 
+                    placeholder="Subject of the issue..." 
+                    rows={4}
+                    value={issueSubject}
+                    onChange={(e) => setIssueSubject(e.target.value)}
+                  />
+                </div>
                 <div className="space-y-2">
                   <Label htmlFor="issue-type">Type of Issue</Label>
                   <Select value={issueType} onValueChange={setIssueType}>
