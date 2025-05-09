@@ -64,10 +64,7 @@ const Maintenance = () => {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Failed to fetch maintenance items');
       }
-      if (response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Fetched maintenance items');
-      }
+
 
       const data: MaintenanceItem[] = await response.json();
       setUpcomingMaintenance(data); // Update the state with fetched data
