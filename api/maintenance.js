@@ -1,3 +1,8 @@
+// Optional: Explicitly configure this function to run on the Edge runtime
+export const config = {
+  runtime: 'edge', // This line tells Vercel to run this as an Edge Function
+};
+
 //import { VercelRequest, VercelResponse } from '@vercel/node';
 
 // In a real application, this data would come from and be stored in a database.
