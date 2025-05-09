@@ -1,15 +1,4 @@
-// api/edge.js
-import { VercelRequest, VercelResponse } from '@vercel/node';
-
-export default async function handler(req, res) {
-  console.log('--- Simple Test Function Executed ---'); // This should appear in logs if it runs
-  res.status(200).json({
-    message: `Hello from the API! Method: ${req.method}`,
-    timestamp: new Date().toISOString()
-  });
-}
-
-/*import { VercelRequest, VercelResponse } from '@vercel/node';
+//import { VercelRequest, VercelResponse } from '@vercel/node';
 
 // In a real application, this data would come from and be stored in a database.
 // This array is for demonstration purposes ONLY and will not persist data across requests.
@@ -98,4 +87,3 @@ export default async function handler(req, res) {
     res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 }
-*/
