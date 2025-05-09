@@ -1,4 +1,4 @@
-// api/maintenance.js
+// api/edge.js
 import { VercelRequest, VercelResponse } from '@vercel/node';
 
 export default async function handler(req, res) {
