@@ -1,11 +1,3 @@
-Thanks for clarifying the path! src/pages/Maintenance.tsx is the standard location for a page using the Pages Router in Next.js.
-
-The code I provided is still valid for that path. The use of useState and useEffect makes it a client-side component, which is perfectly fine within the pages directory.
-
-Here is the code again, confirmed for src/pages/Maintenance.tsx. The content is identical to the previous response, as the core logic of interacting with the /api/maintenance endpoint remains the same regardless of whether you're using the Pages Router (pages/) or App Router (app/).
-
-TypeScript
-
 // src/pages/Maintenance.tsx
 'use client'; // Keep this directive as you're using client-side hooks
 
