@@ -53,7 +53,7 @@ const Maintenance = () => {
   // Function to fetch upcoming maintenance data
   const fetchUpcomingMaintenance = async () => {
     try {
-      const response = await fetch('/api/maintenance', { // Fetch from your API endpoint
+      const response = await fetch('/api/edge', { // Fetch from your API endpoint
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -106,7 +106,7 @@ const Maintenance = () => {
 
     try {
       // Send the POST request to your API endpoint
-      const response = await fetch('/api/maintenance', {
+      const response = await fetch('/api/edge', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
